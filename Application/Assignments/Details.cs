@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Application.Core;
 using Domain;
 using MediatR;
 using Persistence;
@@ -9,12 +10,12 @@ namespace Application.Assignments
 {
     public class Details
     {
-        public class Query : IRequest<Assignment>
+        public class Query : IRequest<Result<Assignment>>
         {
             public Guid Id { get; set; }
         }
 
-        public class Handler : IRequestHandler<Query, Assignment>
+        public class Handler : IRequestHandler<Query, Result<Assignment>>
         {
             private readonly DataContext _context;
             public Handler(DataContext context)
@@ -22,9 +23,11 @@ namespace Application.Assignments
                 _context = context;
             }
 
-            public async Task<Assignment> Handle(Query request, CancellationToken cancellationToken)
+            public async Task<Result<Assignment>> Handle(Query request, CancellationToken cancellationToken)
             {
-                return await _context.Assignments.FindAsync(request.Id);
+                var assignment = await _context.Assignments.FindAsync(request.Id);
+
+                return Result<Assignment>.Success(assignment);
             }
         }
     }
