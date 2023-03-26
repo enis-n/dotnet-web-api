@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Application.Activities;
 using Application.Assignments;
 using Domain;
 using Microsoft.AspNetCore.Authorization;
@@ -30,6 +31,7 @@ namespace API.Controllers
             return HandleResult(await Mediator.Send(new Create.Command { Assignment = assignment }));
         }
 
+        [Authorize(Policy = "IsAssignmentHost")]
         [HttpPut("{id}")] //update assignment
         public async Task<IActionResult> EditAssignment(Guid id, Assignment assignment)
         {
@@ -37,10 +39,17 @@ namespace API.Controllers
             return HandleResult(await Mediator.Send(new Edit.Command { Assignment = assignment }));
         }
 
+        [Authorize(Policy = "IsAssignmentHost")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAssignment(Guid id)
         {
             return HandleResult(await Mediator.Send(new Delete.Command { Id = id }));
+        }
+
+        [HttpPost("{id}/attend")]
+        public async Task<IActionResult> Attend(Guid id)
+        {
+            return HandleResult(await Mediator.Send(new UpdateAttendance.Command { Id = id }));
         }
     }
 }
